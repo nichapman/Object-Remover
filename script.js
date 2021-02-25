@@ -79,7 +79,6 @@ function displayImage(input) {
                 backgroundCanvas.height = screen.height * 0.7;
                 // bctx.drawImage(background, 0, 0);
 
-    
                 var canvasWidth = backgroundCanvas.width;
 
                 var imageRatio = this.width / this.height;
@@ -97,25 +96,78 @@ function displayImage(input) {
 
                 // Draw the image at the right width/height
                 bctx.drawImage(this, 0, 0, canvasWidth, canvasHeight);
+
+                setTimeout(function () {
+                    alert("Upload complete! Draw on the image to indicate the area to be removed.");
+                }, 0);
             }
         };
 
         reader.readAsDataURL(input.files[0]);
+        document.getElementById("process").style.display = "block";
+        document.getElementById("upload").style.display = "none";
+
         init();
     }
 }
 
 function saveImage(e) {
-    var image = canvas.toDataURL(encoderOptions = 1);
+    var image = backgroundCanvas.toDataURL(encoderOptions = 1);
     var link = document.createElement('a');
-    link.download = "mask.png";
+    link.src = "output.png";
     link.href = image;
     link.click();
+}
+
+function processImage(e) {
+    var mask = canvas.toDataURL(encoderOptions = 1);
 
     ctx.globalCompositeOperation = "destination-over";
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    image = canvas.toDataURL(encoderOptions = 1);
-    link.download = "input.png";
-    link.href = image;
-    link.click();
+    var image = canvas.toDataURL(encoderOptions = 1);
+
+    data = { 'image': image, 'mask': mask };
+
+    fetch('http://192.168.0.35:5000/process', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    })
+        .then(response => {
+            console.log(response)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+
+    document.getElementsByClassName("loader")[0].style.visibility = "visible";
+
+    fetch('http://192.168.0.35:5000/getOutput?' + Date.now())
+        .then(response => response.blob())
+        .then(image => {
+            var reader = new FileReader();
+            reader.readAsDataURL(image);
+            reader.onloadend = function () {
+                var output = new Image();
+                var base64data = reader.result;
+                output.onload = function () {
+                    bctx.drawImage(output, 0, 0, canvas.width, canvas.height);
+                }
+                output.src = base64data;
+
+                document.getElementById("process").style.display = "none";
+
+                document.body.innerHTML = "<img id=\"output\" src=\"" + base64data + "\">";
+
+                setTimeout(function () {
+                    alert("Processing complete! Press and hold on the image to save it.");
+                }, 0)
+            }
+        })
+}
+
+function refreshApp() {
+    location.reload();
 }
