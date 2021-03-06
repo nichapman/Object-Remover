@@ -1,5 +1,8 @@
 body {
     background-color: lightgrey;
+    /* height:100%; */
+    width: 100%;
+    /* overflow: hidden; */
 }
 
 .flex {
@@ -8,6 +11,8 @@ body {
 }
 
 #canvasapp {
+    position: relative;
+    text-align: center;
     /* Prevent nearby text being highlighted when 
     accidentally dragging mouse outside confines of the canvas */
     -webkit-touch-callout: none;
@@ -16,7 +21,6 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    position: relative;
 }
 
 #canvas {
@@ -26,6 +30,12 @@ body {
 
 #backgroundCanvas, #canvas, #output  {
     margin: 25px 25px 20px 25px;
+}
+
+#output {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #upload, #process, #save, #refresh {

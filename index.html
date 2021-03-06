@@ -16,7 +16,7 @@
         <div id="canvasapp">
             <canvas id="canvas" style="border:2px solid black;"></canvas>
             <canvas id="backgroundCanvas" style="border:2px solid black;"></canvas>
-            <span class="loader" style="visibility: hidden;" ></span>
+            <span class="loader" style="visibility: hidden;"></span>
         </div>
         <input type="file" accept="image/jpeg, image/png" id="selectedFile" onchange="displayImage(this)"
             style="display: none;" />
@@ -24,7 +24,7 @@
             onclick="document.getElementById('selectedFile').click();">Upload Image</button>
         <button type="button" id="process" class="btn btn-dark" onclick="processImage();" style="display: none;">Process
             Image</button>
-        <button type="button" id="refresh" class="btn btn-danger" onclick="refreshApp();">Reset</button>
+        <button type="button" id="refresh" class="btn btn-danger" onclick="location.reload();">Reset</button>
     </div>
 </body>
 

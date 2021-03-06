@@ -77,7 +77,6 @@ function displayImage(input) {
                 canvas.height = screen.height * 0.7;
                 backgroundCanvas.width = screen.width * 0.85;
                 backgroundCanvas.height = screen.height * 0.7;
-                // bctx.drawImage(background, 0, 0);
 
                 var canvasWidth = backgroundCanvas.width;
 
@@ -112,10 +111,18 @@ function displayImage(input) {
 }
 
 function saveImage(e) {
-    var image = backgroundCanvas.toDataURL(encoderOptions = 1);
+    var image = canvas.toDataURL(encoderOptions = 1);
     var link = document.createElement('a');
-    link.src = "output.png";
     link.href = image;
+    link.download = 'mask.png';
+    link.click();
+
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    image = canvas.toDataURL(encoderOptions = 1);
+    link.href = image;
+    link.download = 'input.png';
     link.click();
 }
 
@@ -128,7 +135,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    fetch('http://192.168.0.35:5000/process', {
+    fetch('http://138.38.168.89:5000/process', {
         method: 'POST',
         body: JSON.stringify(data),
     })
@@ -144,7 +151,10 @@ function processImage(e) {
 
     document.getElementsByClassName("loader")[0].style.visibility = "visible";
 
-    fetch('http://192.168.0.35:5000/getOutput?' + Date.now())
+    //https://inpainting-306514.ew.r.appspot.com/
+    //http://138.38.168.89:5000
+    //http://192.168.0.35:5000
+    fetch('http://138.38.168.89:5000/getOutput?' + Date.now())
         .then(response => response.blob())
         .then(image => {
             var reader = new FileReader();
@@ -166,8 +176,4 @@ function processImage(e) {
                 }, 0)
             }
         })
-}
-
-function refreshApp() {
-    location.reload();
 }
