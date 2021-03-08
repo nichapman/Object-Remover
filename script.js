@@ -114,22 +114,6 @@ function displayImage(input) {
     }
 }
 
-function saveImage(e) {
-    var image = canvas.toDataURL(encoderOptions = 1);
-    var link = document.createElement('a');
-    link.href = image;
-    link.download = 'mask.png';
-    link.click();
-
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-    image = canvas.toDataURL(encoderOptions = 1);
-    link.href = image;
-    link.download = 'input.png';
-    link.click();
-}
-
 function processImage(e) {
     var mask = canvas.toDataURL(encoderOptions = 1);
 
