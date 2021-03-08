@@ -1,0 +1,21 @@
+{
+    "name": "Object Removal",
+    "short_name": "Object Removal",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#fdfdfd",
+    "theme_color": "#db4938",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icons/icon-120x120.png",
+            "type": "image/png",
+            "sizes": "120x120"
+        },
+        {
+            "src": "/icons/icon-180x180.png",
+            "type": "image/png",
+            "sizes": "180x180"
+        }
+    ]
+}

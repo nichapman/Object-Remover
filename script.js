@@ -3,6 +3,15 @@ var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
 
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker
+            .register("/serviceWorker.js")
+            .then(res => console.log("service worker registered"))
+            .catch(err => console.log("service worker not registered", err))
+    })
+}
+
 function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
 
@@ -135,6 +144,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
+
     fetch('http://138.38.168.89:5000/process', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -169,7 +179,7 @@ function processImage(e) {
 
                 document.getElementById("process").style.display = "none";
 
-                document.body.innerHTML = "<img id=\"output\" src=\"" + base64data + "\">";
+                document.body.innerHTML = "<img id=\"output\" src=\"" + base64data + "\"> <button type=\"button\" id=\"refresh\" class=\"btn btn - danger\" onclick=\"location.reload(); \">Reset</button>";
 
                 setTimeout(function () {
                     alert("Processing complete! Press and hold on the image to save it.");
