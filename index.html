@@ -22,8 +22,9 @@
         <div id="canvasapp">
             <canvas id="canvas" style="border:2px solid black;"></canvas>
             <canvas id="backgroundCanvas" style="border:2px solid black;"></canvas>
-            <span class="loader" style="visibility: hidden;"></span>
+            <span class="loader" style="display: none;"></span>
         </div>
+        <img id="output" src="" style="display: none;">
         <input type="file" accept="image/jpeg, image/png" id="selectedFile" onchange="displayImage(this)"
             style="display: none;" />
         <button type="button" id="upload" class="btn btn-dark"

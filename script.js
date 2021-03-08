@@ -14,10 +14,9 @@ if ("serviceWorker" in navigator) {
 
 function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
-
     // Draw a filled circle
     ctx.beginPath();
-    ctx.arc(x, y, 25, 0, Math.PI * 2, true);
+    ctx.arc(x, y, 15, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.fill();
 }
@@ -25,9 +24,7 @@ function drawDot(ctx, x, y) {
 function sketchpad_touchStart() {
     // Update the touch co-ordinates
     getTouchPos();
-
     drawDot(ctx, touchX, touchY);
-
     // Prevents an additional mousedown event being triggered
     event.preventDefault();
 }
@@ -35,9 +32,7 @@ function sketchpad_touchStart() {
 function sketchpad_touchMove(e) {
     // Update the touch co-ordinates
     getTouchPos(e);
-
     drawDot(ctx, touchX, touchY);
-
     // Prevent a scrolling action as a result of this touchmove triggering.
     event.preventDefault();
 }
@@ -144,27 +139,17 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-
-    fetch('http://138.38.168.89:5000/process', {
-        method: 'POST',
-        body: JSON.stringify(data),
-    })
-        .then(response => {
-            console.log(response)
-        })
-        .catch(err => {
-            console.log(err)
-        })
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
-
-    document.getElementsByClassName("loader")[0].style.visibility = "visible";
+    document.getElementsByClassName("loader")[0].style.display = "block";
 
     //https://inpainting-306514.ew.r.appspot.com/
     //http://138.38.168.89:5000
     //http://192.168.0.35:5000
-    fetch('http://138.38.168.89:5000/getOutput?' + Date.now())
+    fetch('http://192.168.0.35:5000/process?' + Date.now(), {
+        method: 'POST',
+        body: JSON.stringify(data),
+    })
         .then(response => response.blob())
         .then(image => {
             var reader = new FileReader();
@@ -177,9 +162,13 @@ function processImage(e) {
                 }
                 output.src = base64data;
 
+                //hide everything other reset button, display output image
                 document.getElementById("process").style.display = "none";
-
-                document.body.innerHTML = "<img id=\"output\" src=\"" + base64data + "\"> <button type=\"button\" id=\"refresh\" class=\"btn btn - danger\" onclick=\"location.reload(); \">Reset</button>";
+                document.getElementById("canvas").style.display = "none";
+                document.getElementById("backgroundCanvas").style.display = "none";
+                document.getElementsByClassName("loader")[0].style.display = "none";
+                document.getElementById("output").style.display = "block";
+                document.getElementById("output").src = base64data;
 
                 setTimeout(function () {
                     alert("Processing complete! Press and hold on the image to save it.");
