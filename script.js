@@ -144,12 +144,7 @@ function processImage(e) {
     bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
     document.getElementsByClassName("loading")[0].style.display = "block";
 
-    //https://inpainting-306514.ew.r.appspot.com/
-    //http://138.38.168.89:5000
-    //http://192.168.0.35:5000
-    //http://127.0.0.1:5000/
-
-    fetch('http://192.168.0.35:5000/process?' + Date.now(), {
+    fetch('http://ce4a093b1cd6.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
