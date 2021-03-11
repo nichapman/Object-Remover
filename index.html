@@ -18,11 +18,11 @@
 </head>
 
 <body>
+    <div class="loading" style="display: none;">Loading&#8230;</div>
     <div class="flex">
         <div id="canvasapp">
             <canvas id="canvas" style="border:2px solid black;"></canvas>
             <canvas id="backgroundCanvas" style="border:2px solid black;"></canvas>
-            <span class="loader" style="display: none;"></span>
         </div>
         <img id="output" src="" style="display: none;">
         <input type="file" accept="image/jpeg, image/png" id="selectedFile" onchange="displayImage(this)"

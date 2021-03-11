@@ -3,6 +3,35 @@ var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
 
+// Assuming <html> has `width: 100%`.
+var width = document.documentElement.clientWidth * window.devicePixelRatio;
+viewport = document.querySelector("meta[name=viewport]");
+viewport.setAttribute('content', 'width=' + width);
+document.documentElement.style.transform = 'scale( 1 / window.devicePixelRatio )';
+document.documentElement.style.transformOrigin = 'top left';
+
+window.onload = function (e) {
+    canvas = document.getElementById('canvas');
+    backgroundCanvas = document.getElementById('backgroundCanvas');
+
+    var scaling = window.devicePixelRatio;
+    if (!(scaling > 2.5)) {
+        scaling = 1;
+    }
+
+    canvas.width = window.innerWidth * 0.9 * scaling;
+    canvas.height = window.innerHeight * 0.75 * scaling;
+    backgroundCanvas.width = canvas.width;
+    backgroundCanvas.height = canvas.height;
+
+    if (canvas.getContext)
+        ctx = canvas.getContext('2d');
+
+    if (backgroundCanvas.getContext) {
+        bctx = backgroundCanvas.getContext('2d');
+    }
+}
+
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
         navigator.serviceWorker
@@ -16,7 +45,7 @@ function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
     // Draw a filled circle
     ctx.beginPath();
-    ctx.arc(x, y, 15, 0, Math.PI * 2, true);
+    ctx.arc(x, y, 30, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.fill();
 }
@@ -37,7 +66,6 @@ function sketchpad_touchMove(e) {
     event.preventDefault();
 }
 
-// Get the touch position relative to the top-left of the canvas
 function getTouchPos(e) {
     if (!e)
         var e = event;
@@ -51,23 +79,6 @@ function getTouchPos(e) {
     }
 }
 
-function init() {
-    canvas = document.getElementById('canvas');
-    backgroundCanvas = document.getElementById('backgroundCanvas');
-
-    if (canvas.getContext)
-        ctx = canvas.getContext('2d');
-
-    if (backgroundCanvas.getContext) {
-        bctx = backgroundCanvas.getContext('2d');
-    }
-
-    if (ctx) {
-        canvas.addEventListener('touchstart', sketchpad_touchStart, false);
-        canvas.addEventListener('touchmove', sketchpad_touchMove, false);
-    }
-}
-
 function displayImage(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
@@ -77,28 +88,31 @@ function displayImage(input) {
             background.src = e.target.result;
 
             background.onload = function () {
-                canvas.width = screen.width * 0.85;
-                canvas.height = screen.height * 0.7;
-                backgroundCanvas.width = screen.width * 0.85;
-                backgroundCanvas.height = screen.height * 0.7;
+                var width = this.width;
+                var height = this.height;
+                var max_width = canvas.width;
+                var max_height = canvas.height;
 
-                var canvasWidth = backgroundCanvas.width;
+                // calculate the width and height, constraining the proportions
+                if (width > height) {
+                    if (width > max_width) {
+                        height = Math.round(height *= max_width / width);
+                        width = max_width;
+                    }
+                } else {
+                    if (height > max_height) {
+                        width = Math.round(width *= max_height / height);
+                        height = max_height;
+                    }
+                }
 
-                var imageRatio = this.width / this.height;
+                // resize the canvas and draw the image data into it
+                canvas.width = width;
+                canvas.height = height;
+                backgroundCanvas.width = width;
+                backgroundCanvas.height = height;
 
-                // Work out the new height of the canvas, keeping in ratio with the image
-                var canvasHeight = canvasWidth / imageRatio;
-
-                // Set the canvas' height in the style tag to be correct
-                backgroundCanvas.width = canvasWidth;
-                backgroundCanvas.height = canvasHeight;
-
-                // Set the canvas' height in the style tag to be correct
-                canvas.width = canvasWidth;
-                canvas.height = canvasHeight;
-
-                // Draw the image at the right width/height
-                bctx.drawImage(this, 0, 0, canvasWidth, canvasHeight);
+                bctx.drawImage(this, 0, 0, width, height);
 
                 setTimeout(function () {
                     alert("Upload complete! Draw on the image to indicate the area to be removed.");
@@ -110,7 +124,10 @@ function displayImage(input) {
         document.getElementById("process").style.display = "block";
         document.getElementById("upload").style.display = "none";
 
-        init();
+        if (ctx) {
+            canvas.addEventListener('touchstart', sketchpad_touchStart, false);
+            canvas.addEventListener('touchmove', sketchpad_touchMove, false);
+        }
     }
 }
 
@@ -125,11 +142,13 @@ function processImage(e) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
-    document.getElementsByClassName("loader")[0].style.display = "block";
+    document.getElementsByClassName("loading")[0].style.display = "block";
 
     //https://inpainting-306514.ew.r.appspot.com/
     //http://138.38.168.89:5000
     //http://192.168.0.35:5000
+    //http://127.0.0.1:5000/
+
     fetch('http://192.168.0.35:5000/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
@@ -150,7 +169,7 @@ function processImage(e) {
                 document.getElementById("process").style.display = "none";
                 document.getElementById("canvas").style.display = "none";
                 document.getElementById("backgroundCanvas").style.display = "none";
-                document.getElementsByClassName("loader")[0].style.display = "none";
+                document.getElementsByClassName("loading")[0].style.display = "none";
                 document.getElementById("output").style.display = "block";
                 document.getElementById("output").src = base64data;
 
