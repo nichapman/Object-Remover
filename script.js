@@ -144,7 +144,7 @@ function processImage(e) {
     bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
     document.getElementsByClassName("loading")[0].style.display = "block";
 
-    fetch('https://ce4a093b1cd6.ngrok.io/process?' + Date.now(), {
+    fetch('https://4bb29ec7c686.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
