@@ -173,4 +173,11 @@ function processImage(e) {
                 }, 0)
             }
         })
+        .catch(err => {
+            document.getElementsByClassName("loading")[0].style.display = "none";
+            setTimeout(function () {
+                alert("Unable to connect to the server. Please try again later.");
+            }, 0)
+            location.reload();
+        });
 }
