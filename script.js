@@ -2,6 +2,7 @@ var canvas, ctx;
 var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
+const SHRINK_FACTOR = 2;
 
 // Assuming <html> has `width: 100%`.
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
@@ -132,16 +133,22 @@ function displayImage(input) {
 }
 
 function processImage(e) {
-    var mask = canvas.toDataURL(encoderOptions = 1);
+    //shrink canvas here
+    var resizedCanvas = document.createElement("canvas");
+    var resizedContext = resizedCanvas.getContext("2d");
 
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    var image = canvas.toDataURL(encoderOptions = 1);
+    resizedCanvas.height = canvas.height / SHRINK_FACTOR;
+    resizedCanvas.width = canvas.width / SHRINK_FACTOR;
+
+    resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+    var mask = resizedCanvas.toDataURL();
+
+    resizedContext.globalCompositeOperation = "destination-over";
+    resizedContext.drawImage(background, 0, 0, resizedCanvas.width, resizedCanvas.height);
+    var image = resizedCanvas.toDataURL();
 
     data = { 'image': image, 'mask': mask };
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    bctx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
     document.getElementsByClassName("loading")[0].style.display = "block";
 
     fetch('https://84b3df1590ea.ngrok.io/process?' + Date.now(), {
@@ -165,10 +172,14 @@ function processImage(e) {
                 document.getElementById("canvas").style.display = "none";
                 document.getElementById("backgroundCanvas").style.display = "none";
                 document.getElementsByClassName("loading")[0].style.display = "none";
-                document.getElementById("output").style.display = "block";
-                document.getElementById("output").src = base64data;
+
+                //display final image, expand to fit screen?
+                var finalImage = document.getElementById("output");
+                finalImage.src = base64data;
+                finalImage.style.display = "block";
 
                 setTimeout(function () {
+                    finalImage.width = finalImage.width * SHRINK_FACTOR;
                     alert("Processing complete! Press and hold on the image to save it.");
                 }, 0)
             }
