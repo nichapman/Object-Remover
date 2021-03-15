@@ -2,7 +2,11 @@ var canvas, ctx;
 var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
+
 const SHRINK_FACTOR = 2;
+const CANVAS_WIDTH_PERCENTAGE = 0.95;
+const CANVAS_HEIGHT_PERCENTAGE = 0.75;
+const DESKTOP_PIXEL_RATIO_THRESHOLD = 2.1;
 
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
@@ -15,12 +19,12 @@ window.onload = function (e) {
     backgroundCanvas = document.getElementById('backgroundCanvas');
 
     var scaling = window.devicePixelRatio;
-    if (scaling < 2.1) {
+    if (scaling < DESKTOP_PIXEL_RATIO_THRESHOLD) {
         scaling = 1;
     }
 
-    canvas.width = window.innerWidth * 0.95 * scaling;
-    canvas.height = window.innerHeight * 0.75 * scaling;
+    canvas.width = window.innerWidth * CANVAS_WIDTH_PERCENTAGE * scaling;
+    canvas.height = window.innerHeight * CANVAS_HEIGHT_PERCENTAGE * scaling;
     backgroundCanvas.width = canvas.width;
     backgroundCanvas.height = canvas.height;
 
@@ -68,6 +72,9 @@ function sketchpad_touchMove(e) {
 }
 
 function getTouchPos(e) {
+    if (!e)
+        var e = event;
+
     if (e.touches) {
         if (e.touches.length == 1) {
             var touch = e.touches[0];
@@ -84,7 +91,6 @@ function displayImage(input) {
         reader.onload = function (e) {
             background = new Image();
             background.src = e.target.result;
-
             background.onload = function () {
                 var width = this.width;
                 var height = this.height;
@@ -104,12 +110,11 @@ function displayImage(input) {
                     }
                 }
 
-                // resize the canvas and draw the image data into it
+                // resize the canvases and draw the image data into it
                 canvas.width = width;
                 canvas.height = height;
                 backgroundCanvas.width = width;
                 backgroundCanvas.height = height;
-
                 bctx.drawImage(this, 0, 0, width, height);
 
                 alert("Upload complete! Draw on the image to indicate the area to be removed.");
@@ -127,24 +132,31 @@ function displayImage(input) {
 }
 
 function processImage(e) {
+    //create canvas for downsizing the image for faster processing
     var resizedCanvas = document.createElement("canvas");
     var resizedContext = resizedCanvas.getContext("2d");
 
+    //draw mask onto scaled down canvas
     resizedCanvas.height = canvas.height / SHRINK_FACTOR;
     resizedCanvas.width = canvas.width / SHRINK_FACTOR;
-
     resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+    //export the mask in dataURL format
     var mask = resizedCanvas.toDataURL();
 
+    //draw input image behind mask
     resizedContext.globalCompositeOperation = "destination-over";
     resizedContext.drawImage(background, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+    //export the combined mask and image in dataURL format
     var image = resizedCanvas.toDataURL();
+
+    //show loading overlay
+    showElement(document.getElementsByClassName("loading")[0]);
 
     data = { 'image': image, 'mask': mask };
 
-    showElement(document.getElementsByClassName("loading")[0]);
-
-    fetch('https://94020dfc7164.ngrok.io/process?' + Date.now(), {
+    fetch('https://cfb840445a61.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
@@ -173,6 +185,7 @@ function processImage(e) {
             alert("Processing complete! Press and hold on the image to save it.");
         })
         .catch(err => {
+            //connection to the backend is unsuccessful: hide loading overlay, output error message and refresh
             hideElement(document.getElementsByClassName("loading")[0]);
             alert("Unable to connect to the server. Please try again later.");
             location.reload();
