@@ -6,7 +6,6 @@ var background;
 const SHRINK_FACTOR = 2;
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
-const DESKTOP_PIXEL_RATIO_THRESHOLD = 2.1;
 
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
@@ -17,19 +16,13 @@ document.documentElement.style.transformOrigin = 'top left';
 window.onload = function (e) {
     canvas = document.getElementById('canvas');
     backgroundCanvas = document.getElementById('backgroundCanvas');
-
-    var scaling = window.devicePixelRatio;
-    // if (scaling < DESKTOP_PIXEL_RATIO_THRESHOLD) {
-    //     scaling = 1;
-    // }
-
-    canvas.width = window.innerWidth * CANVAS_WIDTH_PERCENTAGE * scaling;
-    canvas.height = window.innerHeight * CANVAS_HEIGHT_PERCENTAGE * scaling;
-    backgroundCanvas.width = canvas.width;
-    backgroundCanvas.height = canvas.height;
-
     ctx = canvas.getContext('2d');
     bctx = backgroundCanvas.getContext('2d');
+
+    canvas.width = window.innerWidth * window.devicePixelRatio * CANVAS_WIDTH_PERCENTAGE;
+    canvas.height = window.innerHeight * window.devicePixelRatio * CANVAS_HEIGHT_PERCENTAGE;
+    backgroundCanvas.width = canvas.width;
+    backgroundCanvas.height = canvas.height;
 }
 
 if ("serviceWorker" in navigator) {
