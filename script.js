@@ -19,9 +19,9 @@ window.onload = function (e) {
     backgroundCanvas = document.getElementById('backgroundCanvas');
 
     var scaling = window.devicePixelRatio;
-    if (scaling < DESKTOP_PIXEL_RATIO_THRESHOLD) {
-        scaling = 1;
-    }
+    // if (scaling < DESKTOP_PIXEL_RATIO_THRESHOLD) {
+    //     scaling = 1;
+    // }
 
     canvas.width = window.innerWidth * CANVAS_WIDTH_PERCENTAGE * scaling;
     canvas.height = window.innerHeight * CANVAS_HEIGHT_PERCENTAGE * scaling;
