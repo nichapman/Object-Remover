@@ -15,7 +15,7 @@ window.onload = function (e) {
     backgroundCanvas = document.getElementById('backgroundCanvas');
 
     var scaling = window.devicePixelRatio;
-    if (!(scaling > 2.1)) {
+    if (scaling < 2.1) {
         scaling = 1;
     }
 
@@ -47,7 +47,6 @@ function hideElement(element) {
 
 function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
-    // Draw a filled circle
     ctx.beginPath();
     ctx.arc(x, y, 30, 0, Math.PI * 2, true);
     ctx.closePath();
@@ -55,7 +54,6 @@ function drawDot(ctx, x, y) {
 }
 
 function sketchpad_touchStart() {
-    // Update the touch co-ordinates
     getTouchPos();
     drawDot(ctx, touchX, touchY);
     // Prevents an additional mousedown event being triggered
@@ -63,7 +61,6 @@ function sketchpad_touchStart() {
 }
 
 function sketchpad_touchMove(e) {
-    // Update the touch co-ordinates
     getTouchPos(e);
     drawDot(ctx, touchX, touchY);
     // Prevent a scrolling action as a result of this touchmove triggering.
@@ -71,12 +68,9 @@ function sketchpad_touchMove(e) {
 }
 
 function getTouchPos(e) {
-    if (!e)
-        var e = event;
-
     if (e.touches) {
-        if (e.touches.length == 1) { // Only deal with one finger
-            var touch = e.touches[0]; // Get the information for finger #1
+        if (e.touches.length == 1) {
+            var touch = e.touches[0];
             touchX = touch.pageX - touch.target.offsetLeft;
             touchY = touch.pageY - touch.target.offsetTop;
         }
@@ -118,25 +112,21 @@ function displayImage(input) {
 
                 bctx.drawImage(this, 0, 0, width, height);
 
-                setTimeout(function () {
-                    alert("Upload complete! Draw on the image to indicate the area to be removed.");
-                }, 0);
+                alert("Upload complete! Draw on the image to indicate the area to be removed.");
             }
         };
 
         reader.readAsDataURL(input.files[0]);
         showElement(document.getElementById("process"));
         hideElement(document.getElementById("upload"));
+        showElement(document.getElementById("refresh"));
 
-        if (ctx) {
-            canvas.addEventListener('touchstart', sketchpad_touchStart, false);
-            canvas.addEventListener('touchmove', sketchpad_touchMove, false);
-        }
+        canvas.addEventListener('touchstart', sketchpad_touchStart, false);
+        canvas.addEventListener('touchmove', sketchpad_touchMove, false);
     }
 }
 
 function processImage(e) {
-    //shrink canvas here
     var resizedCanvas = document.createElement("canvas");
     var resizedContext = resizedCanvas.getContext("2d");
 
