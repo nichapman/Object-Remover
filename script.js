@@ -4,7 +4,6 @@ var touchX, touchY;
 var background;
 const SHRINK_FACTOR = 2;
 
-// Assuming <html> has `width: 100%`.
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
 viewport.setAttribute('content', 'width=' + width);
@@ -16,21 +15,17 @@ window.onload = function (e) {
     backgroundCanvas = document.getElementById('backgroundCanvas');
 
     var scaling = window.devicePixelRatio;
-    if (!(scaling > 2.5)) {
+    if (!(scaling > 2.1)) {
         scaling = 1;
     }
 
-    canvas.width = window.innerWidth * 0.9 * scaling;
+    canvas.width = window.innerWidth * 0.95 * scaling;
     canvas.height = window.innerHeight * 0.75 * scaling;
     backgroundCanvas.width = canvas.width;
     backgroundCanvas.height = canvas.height;
 
-    if (canvas.getContext)
-        ctx = canvas.getContext('2d');
-
-    if (backgroundCanvas.getContext) {
-        bctx = backgroundCanvas.getContext('2d');
-    }
+    ctx = canvas.getContext('2d');
+    bctx = backgroundCanvas.getContext('2d');
 }
 
 if ("serviceWorker" in navigator) {
@@ -40,6 +35,14 @@ if ("serviceWorker" in navigator) {
             .then(res => console.log("service worker registered"))
             .catch(err => console.log("service worker not registered", err))
     })
+}
+
+function showElement(element) {
+    element.style.display = "block";
+}
+
+function hideElement(element) {
+    element.style.display = "none";
 }
 
 function drawDot(ctx, x, y) {
@@ -122,8 +125,8 @@ function displayImage(input) {
         };
 
         reader.readAsDataURL(input.files[0]);
-        document.getElementById("process").style.display = "block";
-        document.getElementById("upload").style.display = "none";
+        showElement(document.getElementById("process"));
+        hideElement(document.getElementById("upload"));
 
         if (ctx) {
             canvas.addEventListener('touchstart', sketchpad_touchStart, false);
@@ -149,9 +152,9 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    document.getElementsByClassName("loading")[0].style.display = "block";
+    showElement(document.getElementsByClassName("loading")[0]);
 
-    fetch('https://84b3df1590ea.ngrok.io/process?' + Date.now(), {
+    fetch('https://94020dfc7164.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
@@ -160,35 +163,28 @@ function processImage(e) {
             var reader = new FileReader();
             reader.readAsDataURL(image);
             reader.onloadend = function () {
-                var output = new Image();
                 var base64data = reader.result;
-                output.onload = function () {
-                    bctx.drawImage(output, 0, 0, canvas.width, canvas.height);
-                }
-                output.src = base64data;
 
-                //hide everything other reset button, display output image
-                document.getElementById("process").style.display = "none";
-                document.getElementById("canvas").style.display = "none";
-                document.getElementById("backgroundCanvas").style.display = "none";
-                document.getElementsByClassName("loading")[0].style.display = "none";
+                //hide canvases and process button, close loading overlay 
+                hideElement(document.getElementById("process"));
+                hideElement(document.getElementById("canvas"));
+                hideElement(document.getElementById("backgroundCanvas"));
+                hideElement(document.getElementsByClassName("loading")[0]);
 
-                //display final image, expand to fit screen?
+                //show output image and resize to fit screen
                 var finalImage = document.getElementById("output");
                 finalImage.src = base64data;
-                finalImage.style.display = "block";
-
-                setTimeout(function () {
+                showElement(finalImage);
+                finalImage.onload = () => {
                     finalImage.width = finalImage.width * SHRINK_FACTOR;
-                    alert("Processing complete! Press and hold on the image to save it.");
-                }, 0)
+                }
             }
+
+            alert("Processing complete! Press and hold on the image to save it.");
         })
         .catch(err => {
-            document.getElementsByClassName("loading")[0].style.display = "none";
-            setTimeout(function () {
-                alert("Unable to connect to the server. Please try again later.");
-            }, 0)
+            hideElement(document.getElementsByClassName("loading")[0]);
+            alert("Unable to connect to the server. Please try again later.");
             location.reload();
         });
 }

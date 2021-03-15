@@ -12,8 +12,8 @@ body {
 }
 
 #canvasapp {
-    flex: 6;
     text-align: center;
+
     /* Prevent nearby text being highlighted when 
     accidentally dragging mouse outside confines of the canvas */
     -webkit-touch-callout: none;
@@ -30,7 +30,7 @@ body {
 }
 
 #backgroundCanvas, #canvas, #output  {
-    margin: 25px 25px 10px 25px;
+    margin: 25px;
 }
 
 #output {
@@ -49,6 +49,7 @@ body {
     height: 175px;
 }
 
+/* ---------- ALL OF BELOW IS FOR SPINNER ---------- */
 /* Absolute Center Spinner */
 .loading {
   position: fixed;
