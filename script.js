@@ -3,7 +3,7 @@ var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
 
-const SHRINK_FACTOR = 1;
+const SHRINK_FACTOR = 1.5;
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 
