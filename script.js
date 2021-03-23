@@ -130,7 +130,9 @@ function processImage(e) {
     var resizedContext = resizedCanvas.getContext("2d");
 
     //draw mask onto scaled down canvas
-    resizedContext.drawImage(canvas, 0, 0, canvas.width / SHRINK_FACTOR, canvas.height / SHRINK_FACTOR);
+    resizedCanvas.height = canvas.height / SHRINK_FACTOR;
+    resizedCanvas.width = canvas.width / SHRINK_FACTOR;
+    resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
 
     //export the mask in dataURL format
     var mask = resizedCanvas.toDataURL();
