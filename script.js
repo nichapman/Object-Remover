@@ -116,8 +116,8 @@ function displayImage(input) {
 
         reader.readAsDataURL(input.files[0]);
         showElement(document.getElementById("process"));
-        hideElement(document.getElementById("upload"));
         showElement(document.getElementById("refresh"));
+        hideElement(document.getElementById("upload"));
 
         canvas.addEventListener('touchstart', sketchpad_touchStart, false);
         canvas.addEventListener('touchmove', sketchpad_touchMove, false);
@@ -149,7 +149,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    fetch('https://6c83f6c0d2e3.ngrok.io/process?' + Date.now(), {
+    fetch('https://49a15081030b.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
