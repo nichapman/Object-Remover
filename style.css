@@ -49,7 +49,7 @@ body {
     height: 175px;
 }
 
-/* ---------- ALL OF BELOW IS FOR SPINNER ---------- */
+/* ---------- ALL OF BELOW IS FOR SPINNER, CREDIT TO: https://codepen.io/vreuling/pen/OXoVXA ---------- */
 *.hidden {
   display: none !important;
 }

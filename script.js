@@ -7,6 +7,7 @@ const SHRINK_FACTOR = 2;
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 
+// https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
 viewport.setAttribute('content', 'width=' + width);
@@ -42,6 +43,7 @@ function hideElement(element) {
     element.style.display = "none";
 }
 
+// Sketchpad logic credit to: https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
 function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
     ctx.beginPath();
