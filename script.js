@@ -3,7 +3,7 @@ var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
 
-const SHRINK_FACTOR = 2;
+var SHRINK_PERCENTAGE = 1;
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 
@@ -131,9 +131,18 @@ function processImage(e) {
     var resizedCanvas = document.createElement("canvas");
     var resizedContext = resizedCanvas.getContext("2d");
 
+    //shrink image so that the biggest dimension is 680
+    if (canvas.height > 680 || canvas.width > 680) {
+        if (canvas.height > canvas.width) {
+            SHRINK_PERCENTAGE = 680 / canvas.height;
+        } else {
+            SHRINK_PERCENTAGE = 680 / canvas.width;
+        }
+    }
+
     //draw mask onto scaled down canvas
-    resizedCanvas.height = canvas.height / SHRINK_FACTOR;
-    resizedCanvas.width = canvas.width / SHRINK_FACTOR;
+    resizedCanvas.height = canvas.height * SHRINK_PERCENTAGE;
+    resizedCanvas.width = canvas.width * SHRINK_PERCENTAGE;
     resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
 
     //export the mask in dataURL format
@@ -157,6 +166,8 @@ function processImage(e) {
     })
         .then(response => response.blob())
         .then(image => {
+            alert("Processing complete! Press and hold on the image to save it.");
+
             var reader = new FileReader();
             reader.readAsDataURL(image);
             reader.onloadend = function () {
@@ -173,11 +184,9 @@ function processImage(e) {
                 finalImage.src = base64data;
                 showElement(finalImage);
                 finalImage.onload = () => {
-                    finalImage.width = finalImage.width * SHRINK_FACTOR;
+                    finalImage.width = finalImage.width / SHRINK_PERCENTAGE;
                 }
             }
-
-            alert("Processing complete! Press and hold on the image to save it.");
         })
         .catch(err => {
             //connection to the backend is unsuccessful: hide loading overlay, output error message and refresh
