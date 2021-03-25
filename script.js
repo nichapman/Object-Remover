@@ -149,7 +149,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    fetch('https://49a15081030b.ngrok.io/process?' + Date.now(), {
+    fetch('https://2e2f7bd4cbed.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
