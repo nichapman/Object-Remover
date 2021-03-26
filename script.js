@@ -3,9 +3,9 @@ var backgroundCanvas, bctx;
 var touchX, touchY;
 var background;
 
-var SHRINK_PERCENTAGE = 1;
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
+const MODEL_INPUT_MAX_DIMENSION = 680;
 
 // https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
 var width = document.documentElement.clientWidth * window.devicePixelRatio;
@@ -87,30 +87,25 @@ function displayImage(input) {
             background = new Image();
             background.src = e.target.result;
             background.onload = function () {
-                var width = this.width;
-                var height = this.height;
-                var max_width = canvas.width;
-                var max_height = canvas.height;
+                var imageWidth = this.width;
+                var imageHeight = this.height;
+                var downscalePercentage;
 
                 // calculate the width and height, constraining the proportions
-                if (width > height) {
-                    if (width > max_width) {
-                        height = Math.round(height *= max_width / width);
-                        width = max_width;
-                    }
-                } else {
-                    if (height > max_height) {
-                        width = Math.round(width *= max_height / height);
-                        height = max_height;
+                if (imageHeight > canvas.height || imageWidth > canvas.width) {
+                    if (imageHeight > imageWidth) {
+                        downscalePercentage = canvas.height / imageHeight;
+                        imageWidth *= downscalePercentage;
+                        imageHeight *= downscalePercentage;
+                    } else {
+                        downscalePercentage = canvas.width / imageWidth;
+                        imageWidth *= downscalePercentage;
+                        imageHeight *= downscalePercentage;
                     }
                 }
 
-                // resize the canvases and draw the image data into it
-                canvas.width = width;
-                canvas.height = height;
-                backgroundCanvas.width = width;
-                backgroundCanvas.height = height;
-                bctx.drawImage(this, 0, 0, width, height);
+                // draw the image data into it
+                bctx.drawImage(this, 0, 0, imageWidth, imageHeight);
 
                 alert("Upload complete! Draw on the image to indicate the area to be removed.");
             }
@@ -130,19 +125,20 @@ function processImage(e) {
     //create canvas for downsizing the image for faster processing
     var resizedCanvas = document.createElement("canvas");
     var resizedContext = resizedCanvas.getContext("2d");
+    var shrinkPercentage;
 
     //shrink image so that the biggest dimension is 680
-    if (canvas.height > 680 || canvas.width > 680) {
+    if (canvas.height > MODEL_INPUT_MAX_DIMENSION || canvas.width > MODEL_INPUT_MAX_DIMENSION) {
         if (canvas.height > canvas.width) {
-            SHRINK_PERCENTAGE = 680 / canvas.height;
+            shrinkPercentage = MODEL_INPUT_MAX_DIMENSION / canvas.height;
         } else {
-            SHRINK_PERCENTAGE = 680 / canvas.width;
+            shrinkPercentage = MODEL_INPUT_MAX_DIMENSION / canvas.width;
         }
     }
 
     //draw mask onto scaled down canvas
-    resizedCanvas.height = canvas.height * SHRINK_PERCENTAGE;
-    resizedCanvas.width = canvas.width * SHRINK_PERCENTAGE;
+    resizedCanvas.height = canvas.height * shrinkPercentage;
+    resizedCanvas.width = canvas.width * shrinkPercentage;
     resizedContext.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
 
     //export the mask in dataURL format
@@ -184,7 +180,7 @@ function processImage(e) {
                 finalImage.src = base64data;
                 showElement(finalImage);
                 finalImage.onload = () => {
-                    finalImage.width = finalImage.width / SHRINK_PERCENTAGE;
+                    finalImage.width = finalImage.width / shrinkPercentage;
                 }
             }
         })
