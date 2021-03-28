@@ -92,8 +92,8 @@ function displayImage(input) {
             background.onload = function () {
                 var imageWidth = this.width;
                 var imageHeight = this.height;
-                var widthDownscalePercentage;
-                var heightDownscalePercentage;
+                var widthDownscalePercentage = 999;
+                var heightDownscalePercentage = 999;
                 var downscalePercentage;
                 var scaleDown = false;
 
