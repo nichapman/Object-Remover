@@ -140,7 +140,7 @@ function processImage(e) {
     //create canvas for downsizing the image for faster processing
     var resizedCanvas = document.createElement("canvas");
     var resizedContext = resizedCanvas.getContext("2d");
-    var shrinkPercentage;
+    var shrinkPercentage = 1;
 
     //shrink image so that the biggest dimension is 680
     if (canvas.height > MODEL_INPUT_MAX_DIMENSION || canvas.width > MODEL_INPUT_MAX_DIMENSION) {
