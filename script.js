@@ -166,8 +166,10 @@ function processImage(e) {
     //export the combined mask and image in dataURL format
     var image = resizedCanvas.toDataURL();
 
-    //show loading overlay
+    //show loading overlay, disable further mask drawing
     showElement(document.getElementsByClassName("loading")[0]);
+    canvas.removeEventListener('touchstart', startDrawing);
+    canvas.removeEventListener('touchmove', doDrawing);
 
     data = { 'image': image, 'mask': mask };
 
