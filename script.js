@@ -1,24 +1,20 @@
-var canvas, ctx;
-var backgroundCanvas, bctx;
-var touchX, touchY;
-var background;
+var canvas, ctx, backgroundCanvas, bctx, touchX, touchY, background;
 
 const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 const MODEL_INPUT_MAX_DIMENSION = 680;
 
 // https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
-var width = document.documentElement.clientWidth * window.devicePixelRatio;
+var contentWidth = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
-viewport.setAttribute('content', 'width=' + width);
+viewport.setAttribute('content', 'width=' + contentWidth);
 document.documentElement.style.transform = 'scale( 1 / window.devicePixelRatio )';
 document.documentElement.style.transformOrigin = 'top left';
 
+// scaling issues on android on page load
+// use devicePixelRatio scaling only on iPhone?
 window.onload = function (e) {
-    canvas = document.getElementById('canvas');
-    backgroundCanvas = document.getElementById('backgroundCanvas');
-    ctx = canvas.getContext('2d');
-    bctx = backgroundCanvas.getContext('2d');
+    initCanvases();
 
     canvas.width = window.innerWidth * window.devicePixelRatio * CANVAS_WIDTH_PERCENTAGE;
     canvas.height = window.innerHeight * window.devicePixelRatio * CANVAS_HEIGHT_PERCENTAGE;
@@ -33,6 +29,13 @@ if ("serviceWorker" in navigator) {
             .then(res => console.log("service worker registered"))
             .catch(err => console.log("service worker not registered", err))
     })
+}
+
+function initCanvases() {
+    canvas = document.getElementById('canvas');
+    backgroundCanvas = document.getElementById('backgroundCanvas');
+    ctx = canvas.getContext('2d');
+    bctx = backgroundCanvas.getContext('2d');
 }
 
 function showElement(element) {
@@ -52,14 +55,14 @@ function drawDot(ctx, x, y) {
     ctx.fill();
 }
 
-function sketchpad_touchStart() {
+function startDrawing() {
     getTouchPos();
     drawDot(ctx, touchX, touchY);
     // Prevents an additional mousedown event being triggered
     event.preventDefault();
 }
 
-function sketchpad_touchMove(e) {
+function doDrawing(e) {
     getTouchPos(e);
     drawDot(ctx, touchX, touchY);
     // Prevent a scrolling action as a result of this touchmove triggering.
@@ -89,20 +92,32 @@ function displayImage(input) {
             background.onload = function () {
                 var imageWidth = this.width;
                 var imageHeight = this.height;
+                var widthDownscalePercentage;
+                var heightDownscalePercentage;
                 var downscalePercentage;
+                var scaleDown = false;
 
-                // calculate the width and height, constraining the proportions
-                if (imageHeight > canvas.height || imageWidth > canvas.width) {
-                    if (imageHeight > imageWidth) {
-                        downscalePercentage = canvas.height / imageHeight;
-                        imageWidth *= downscalePercentage;
-                        imageHeight *= downscalePercentage;
-                    } else {
-                        downscalePercentage = canvas.width / imageWidth;
-                        imageWidth *= downscalePercentage;
-                        imageHeight *= downscalePercentage;
-                    }
+                // calculate the scaled down width and height of the image to fit the canvas
+                if (imageWidth > canvas.width) {
+                    widthDownscalePercentage = canvas.width / imageWidth;
+                    scaleDown = true;
                 }
+
+                if (imageHeight > canvas.height) {
+                    heightDownscalePercentage = canvas.height / imageHeight;
+                    scaleDown = true;
+                }
+
+                if (scaleDown) {
+                    downscalePercentage = Math.min(widthDownscalePercentage, heightDownscalePercentage);
+                    imageWidth *= downscalePercentage;
+                    imageHeight *= downscalePercentage;
+                }
+
+                canvas.width = imageWidth;
+                backgroundCanvas.width = imageWidth;
+                canvas.height = imageHeight;
+                backgroundCanvas.height = imageHeight;
 
                 // draw the image data into it
                 bctx.drawImage(this, 0, 0, imageWidth, imageHeight);
@@ -116,8 +131,8 @@ function displayImage(input) {
         showElement(document.getElementById("refresh"));
         hideElement(document.getElementById("upload"));
 
-        canvas.addEventListener('touchstart', sketchpad_touchStart, false);
-        canvas.addEventListener('touchmove', sketchpad_touchMove, false);
+        canvas.addEventListener('touchstart', startDrawing, false);
+        canvas.addEventListener('touchmove', doDrawing, false);
     }
 }
 
@@ -156,7 +171,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    fetch('https://892244fad9b0.ngrok.io/process?' + Date.now(), {
+    fetch('https://56031dfbbcad.ngrok.io/process?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
