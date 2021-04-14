@@ -4,6 +4,9 @@ const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 const MODEL_INPUT_MAX_DIMENSION = 680;
 
+const BACKEND_URL = "https://b191fc807450.ngrok.io";
+const PROCESS_ENDPOINT = "/process";
+
 // https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
 var contentWidth = document.documentElement.clientWidth * window.devicePixelRatio;
 viewport = document.querySelector("meta[name=viewport]");
@@ -173,7 +176,7 @@ function processImage(e) {
 
     data = { 'image': image, 'mask': mask };
 
-    fetch('https://8aa3171e9536.ngrok.io/process?' + Date.now(), {
+    fetch(BACKEND_URL + PROCESS_ENDPOINT + '?' + Date.now(), {
         method: 'POST',
         body: JSON.stringify(data),
     })
