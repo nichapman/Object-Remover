@@ -14,8 +14,6 @@ viewport.setAttribute('content', 'width=' + contentWidth);
 document.documentElement.style.transform = 'scale( 1 / window.devicePixelRatio )';
 document.documentElement.style.transformOrigin = 'top left';
 
-// scaling issues on android on page load
-// use devicePixelRatio scaling only on iPhone?
 window.onload = function (e) {
     initCanvases();
 
@@ -50,26 +48,20 @@ function hideElement(element) {
 }
 
 // Sketchpad logic credit to: https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
+// ------------->
+function draw(e) {
+    getTouchPos(e);
+    drawDot(ctx, touchX, touchY);
+    // Prevent a scrolling action as a result of this touchmove triggering.
+    event.preventDefault();
+}
+
 function drawDot(ctx, x, y) {
     ctx.fillStyle = "white";
     ctx.beginPath();
     ctx.arc(x, y, 30, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.fill();
-}
-
-function startDrawing() {
-    getTouchPos();
-    drawDot(ctx, touchX, touchY);
-    // Prevents an additional mousedown event being triggered
-    event.preventDefault();
-}
-
-function doDrawing(e) {
-    getTouchPos(e);
-    drawDot(ctx, touchX, touchY);
-    // Prevent a scrolling action as a result of this touchmove triggering.
-    event.preventDefault();
 }
 
 function getTouchPos(e) {
@@ -84,6 +76,7 @@ function getTouchPos(e) {
         }
     }
 }
+// <-------------
 
 function displayImage(input) {
     if (input.files && input.files[0]) {
@@ -95,26 +88,26 @@ function displayImage(input) {
             background.onload = function () {
                 var imageWidth = this.width;
                 var imageHeight = this.height;
-                var widthDownscalePercentage = 999;
-                var heightDownscalePercentage = 999;
-                var downscalePercentage;
+                var widthDownscaleFactor = 0;
+                var heightDownscaleFactor = 0;
+                var finalDownscaleFactor;
                 var scaleDown = false;
 
                 // calculate the scaled down width and height of the image to fit the canvas
                 if (imageWidth > canvas.width) {
-                    widthDownscalePercentage = canvas.width / imageWidth;
+                    widthDownscaleFactor = imageWidth / canvas.width;
                     scaleDown = true;
                 }
 
                 if (imageHeight > canvas.height) {
-                    heightDownscalePercentage = canvas.height / imageHeight;
+                    heightDownscaleFactor = imageHeight / canvas.height ;
                     scaleDown = true;
                 }
 
                 if (scaleDown) {
-                    downscalePercentage = Math.min(widthDownscalePercentage, heightDownscalePercentage);
-                    imageWidth *= downscalePercentage;
-                    imageHeight *= downscalePercentage;
+                    finalDownscaleFactor = Math.max(widthDownscaleFactor, heightDownscaleFactor);
+                    imageWidth /= finalDownscaleFactor;
+                    imageHeight /= finalDownscaleFactor;
                 }
 
                 canvas.width = imageWidth;
@@ -122,7 +115,6 @@ function displayImage(input) {
                 canvas.height = imageHeight;
                 backgroundCanvas.height = imageHeight;
 
-                // draw the image data into it
                 bctx.drawImage(this, 0, 0, imageWidth, imageHeight);
 
                 alert("Upload complete! Draw on the image to indicate the area to be removed.");
@@ -134,8 +126,8 @@ function displayImage(input) {
         showElement(document.getElementById("refresh"));
         hideElement(document.getElementById("upload"));
 
-        canvas.addEventListener('touchstart', startDrawing, false);
-        canvas.addEventListener('touchmove', doDrawing, false);
+        canvas.addEventListener('touchstart', draw, false);
+        canvas.addEventListener('touchmove', draw, false);
     }
 }
 
