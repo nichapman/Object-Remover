@@ -4,7 +4,7 @@ const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 const MODEL_INPUT_MAX_DIMENSION = 680;
 
-const BACKEND_URL = "https://d1e8a047b7a1.ngrok.io";
+const BACKEND_URL = "https://a8d2bbb7b6b8.ngrok.io";
 const PROCESS_ENDPOINT = "/process";
 
 // https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
