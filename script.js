@@ -163,8 +163,8 @@ function processImage(e) {
 
     //show loading overlay, disable further mask drawing
     showElement(document.getElementsByClassName("loading")[0]);
-    canvas.removeEventListener('touchstart', startDrawing);
-    canvas.removeEventListener('touchmove', doDrawing);
+    canvas.removeEventListener('touchstart', draw);
+    canvas.removeEventListener('touchmove', draw);
 
     data = { 'image': image, 'mask': mask };
 
