@@ -4,7 +4,8 @@ const CANVAS_WIDTH_PERCENTAGE = 0.95;
 const CANVAS_HEIGHT_PERCENTAGE = 0.75;
 const MODEL_INPUT_MAX_DIMENSION = 680;
 
-const BACKEND_URL = "https://5e3d8728d05d.ngrok.io";
+const HOST = "138.38.189.39"
+const BACKEND_URL = "http://" + HOST + ":11000";
 const PROCESS_ENDPOINT = "/process";
 
 // https://stackoverflow.com/questions/45610164/set-viewport-to-match-physical-pixels/45644115
@@ -100,7 +101,7 @@ function displayImage(input) {
                 }
 
                 if (imageHeight > canvas.height) {
-                    heightDownscaleFactor = imageHeight / canvas.height ;
+                    heightDownscaleFactor = imageHeight / canvas.height;
                     scaleDown = true;
                 }
 
@@ -174,27 +175,7 @@ function processImage(e) {
     })
         .then(response => response.blob())
         .then(image => {
-            alert("Processing complete! Press and hold on the image to save it.");
-
-            var reader = new FileReader();
-            reader.readAsDataURL(image);
-            reader.onloadend = function () {
-                var base64data = reader.result;
-
-                //hide canvases and process button, close loading overlay 
-                hideElement(document.getElementById("process"));
-                hideElement(document.getElementById("canvas"));
-                hideElement(document.getElementById("backgroundCanvas"));
-                hideElement(document.getElementsByClassName("loading")[0]);
-
-                //show output image and resize to fit screen
-                var finalImage = document.getElementById("output");
-                finalImage.src = base64data;
-                showElement(finalImage);
-                finalImage.onload = () => {
-                    finalImage.width = finalImage.width / shrinkPercentage;
-                }
-            }
+            displayInpaintedImage(image, shrinkPercentage);
         })
         .catch(err => {
             //connection to the backend is unsuccessful: hide loading overlay, output error message and refresh
@@ -202,4 +183,28 @@ function processImage(e) {
             alert("Unable to connect to the server. Please try again later.");
             location.reload();
         });
+}
+
+function displayInpaintedImage(image, shrinkPercentage) {
+    alert("Processing complete! Press and hold on the image to save it.");
+
+    var reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onloadend = function () {
+        var base64data = reader.result;
+
+        //hide canvases and process button, close loading overlay 
+        hideElement(document.getElementById("process"));
+        hideElement(document.getElementById("canvas"));
+        hideElement(document.getElementById("backgroundCanvas"));
+        hideElement(document.getElementsByClassName("loading")[0]);
+
+        //show output image and resize to fit screen
+        var finalImage = document.getElementById("output");
+        finalImage.src = base64data;
+        showElement(finalImage);
+        finalImage.onload = () => {
+            finalImage.width = finalImage.width / shrinkPercentage;
+        }
+    }
 }
